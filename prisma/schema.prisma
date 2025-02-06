@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name          String
+  email         String? @unique
+  phone_number  String? 
+  image_path    String    
+  status        String
+  password      String
+  roles         String?
+  permitions    String?
+  events        Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id            Int @id @default(autoincrement())
+  name          String?
+  description   String?
+  status        String
+  events        Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id            Int      @id @default(autoincrement())
+  name          String?
+  description   String?
+  localization  String?
+  cover_image   String?    
+  others_images String
+  status        String
+  category_id   Int
+  category      Category @relation(fields: [category_id], references: [id]) 
+  authorId      Int 
+  user          User     @relation(fields: [authorId], references: [id])
+  tickets       Ticket[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+
+model Ticket {
+  id            Int  @id @default(autoincrement())
+  name          String?
+  description   String?   
+  others_images String
+  quantity      Int
+  event_id      Int
+  event   Event @relation(fields: [event_id], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model TicketBuyer {
+  id            Int  @id @default(autoincrement())
+  name          String?
+  email         String?   
+  phone_number  String
+  localizationb String     
+  checkouts Checkout[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Checkout {
+  id            Int  @id @default(autoincrement())
+  quantity      Int?
+  others_images String
+  ticket_id     Int?
+  payment_status String
+  ticketBuyerId  Int
+  ticketBuyer    TicketBuyer @relation(fields: [ticketBuyerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
