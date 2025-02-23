@@ -7,14 +7,24 @@ import userIdValidation from "../types/userIdValidation";
 export default class Usercontroller {
 
     async index(req: Request, res: Response) {
-        const token = req.headers
+        const { token } = req.headers
         console.log(token)
         try {
-            const response = await prisma.user.findMany()
+            const response = await prisma.user.findMany({
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    status: true,
+                    permitions: true,
+                    roles: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            })
             res.status(201).json({ message: "Dados e usuarios pegos com sucesse", data: response })
         } catch (error) {
             res.status(500).json({ message: "Dados e usuarios não pegos com sucesse", data: error })
-
         }
     }
     async create(req: Request, res: Response) {
@@ -68,22 +78,66 @@ export default class Usercontroller {
 
     }
     async show(req: Request, res: Response) {
-        const id = parseInt(req.params.id, 10); 
+        const id = parseInt(req.params.id, 10);
         try {
             const response = await prisma.user.findUnique({
                 where: {
-                 id:id
-                } 
+                    id: id
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    permitions: true,
+                    roles: true,
+                    phone_number: true,
+                    image_path: true,
+                    status: true,
+                    createdAt: true,
+                    updatedAt: true
+
+                }
             })
             res.status(201).json({ message: "Dados pego com sucesso", data: response })
         } catch (error) {
             res.status(500).json({ message: "Dados não pego com sucesso", data: error })
         }
     }
-    delete() {
+    async delete(req: Request, res: Response) {
+        const id = parseInt(req.params.id, 10);
+        const response = await prisma.user.delete({
+            where: {
+                id: id
+            }
+        }).then(res0 => {
+            res.status(201).json({ messege: "usuario apagado com sucesso!", data: res0 })
+        })
+            .catch(error => {
+                res.status(500).json({ message: "usuario Não apagado com sucesso", data: error.meta.cause })
+            })
+    }
+    async update(req: Request, res: Response) {
+        const id = parseInt(req.params.id, 10)
+        const data = req.body
+        try {
+            const response = await prisma.user.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    name: data.name,
+                    email: data.email,
+                    phone_number: data.phone_number,
+                    image_path: data.image_path,
+                    status: data.status,
+                    roles: data.roles,
+                }
+            })
+            res.status(201).json({ message: "usuario actualizado com sucesso!", data: response })
+        } catch (error) {
+            res.status(404).json({ message: error, data: error })
+        }
 
     }
-    update() {
 
-    }
 }
