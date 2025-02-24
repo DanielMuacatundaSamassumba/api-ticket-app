@@ -7,7 +7,7 @@ const usercontroler = new Usercontroller()
 userRouter.get("/", (req, res) => {
     res.status(200).json({ message: "hello world" })
 })
-userRouter.post("/api//user/create", usercontroler.create)
+userRouter.post("/api/user/create", usercontroler.create)
 userRouter.get("/api/admin/user/list", usercontroler.index)
 userRouter.get("/api/user/show/:id", usercontroler.show)
 userRouter.delete("/api/user/delete/:id", usercontroler.delete)

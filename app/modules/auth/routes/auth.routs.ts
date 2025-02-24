@@ -1,8 +1,9 @@
 import { Router } from "express";
-import auth from "../controllers/auth.user.controller";
+import Auth from "../controllers/auth.user.controller";
 
 const authroutes = Router()
-const authverify = new auth()
-authroutes.post("/api/user/login", authverify.login)
+const authverify = new Auth()
+authroutes.post("/api/user/auth", authverify.login)
+authroutes.post("/api/user/auth/reset", authverify.reset)
 
-export default authroutes
+export default authroutes    

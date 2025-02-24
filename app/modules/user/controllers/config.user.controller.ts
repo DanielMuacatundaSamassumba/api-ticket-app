@@ -5,4 +5,4 @@ export default class ConfigUser {
     upload(req:Request, res:Response, ) {
 
     }
-}
+}    

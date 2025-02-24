@@ -4,28 +4,49 @@ import datauservalidation from "../types/data.user.validation";
 import hashpassword from "../../utils/passworHash/passwordHash";
 import { ZodError } from "zod";
 import userIdValidation from "../types/userIdValidation";
+import Jwt from "jsonwebtoken";
+import { permission } from "process";
+interface tokenType {
+    token: string | undefined
+}
+type tokenData = {
+    password: string | null,
+    othersElements: string | null
+}
 export default class Usercontroller {
 
     async index(req: Request, res: Response) {
-        const { token } = req.headers
-        console.log(token)
-        try {
-            const response = await prisma.user.findMany({
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    status: true,
-                    permitions: true,
-                    roles: true,
-                    createdAt: true,
-                    updatedAt: true
+        const token = req.headers?.token 
+        const tokenVerify = Jwt.decode(token)
+        const { password, ...otherElements }: tokenData = tokenVerify
+
+        if (otherElements?.permitions) {
+            const permitions = tokenVerify?.permitions.split(",")
+            if (permitions.includes("list-users")) {
+                try { 
+                    const response = await prisma.user.findMany({
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            status: true,
+                            permitions: true,
+                            roles: true,
+                            createdAt: true,
+                            updatedAt: true,
+                            password: false
+                        }
+                    })
+                    return res.status(201).json({ message: "Dados e usuarios pegos com sucesse", data: response })
+                } catch (error) {
+                    return res.status(500).json({ message: "Dados e usuarios não pegos com sucesse", data: error })
                 }
-            })
-            res.status(201).json({ message: "Dados e usuarios pegos com sucesse", data: response })
-        } catch (error) {
-            res.status(500).json({ message: "Dados e usuarios não pegos com sucesse", data: error })
+            }
+            return res.status(404).json({ message: "Dados e usuarios não pegos com sucesse", error:"Inautenticado" })
+
         }
+
+        return res.status(401).json({ message: "Token não fornecido" });
     }
     async create(req: Request, res: Response) {
         const data = datauservalidation.parse(req.body)
@@ -69,11 +90,10 @@ export default class Usercontroller {
             res.status(201).json({ messege: "usuario cadastrado com sucesso", data: response })
         }).catch(err => {
             if (err instanceof ZodError) {
-                res.status(500).json({ massage: "usuario não cadastrado com sucesso", error: err.cause })
+                res.status(500).json({ massage: "usuario não cadastrado com sucesso", error: err })
                 return;
             }
             res.status(500).json({ massage: "usuario não cadastrado com sucesso", error: err })
-
         })
 
     }
@@ -82,20 +102,11 @@ export default class Usercontroller {
         try {
             const response = await prisma.user.findUnique({
                 where: {
-                    id: id
+                    email: "danielsamasua@gail.com"
                 },
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    permitions: true,
-                    roles: true,
-                    phone_number: true,
-                    image_path: true,
-                    status: true,
-                    createdAt: true,
-                    updatedAt: true
 
+                select: {
+                    password: false
                 }
             })
             res.status(201).json({ message: "Dados pego com sucesso", data: response })
@@ -141,3 +152,5 @@ export default class Usercontroller {
     }
 
 }
+
+
