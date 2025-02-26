@@ -84,7 +84,8 @@ export default class Usercontroller {
                 status: "1",
                 roles: roles,
                 permitions: [permitions].toString(),
-                password: password
+                password: password,
+                code_reset:"123456"
             }
         }).then(response => {
             res.status(201).json({ messege: "usuario cadastrado com sucesso", data: response })
@@ -95,7 +96,7 @@ export default class Usercontroller {
             }
             res.status(500).json({ massage: "usuario não cadastrado com sucesso", error: err })
         })
-
+ 
     }
     async show(req: Request, res: Response) {
         const id = parseInt(req.params.id, 10);

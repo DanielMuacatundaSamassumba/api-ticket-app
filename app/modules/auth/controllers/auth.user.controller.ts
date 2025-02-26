@@ -16,15 +16,15 @@ export default class Auth {
                 },
 
             })
-
+       
             if (!authVerify) {
                 res.status(404).json({ message: "credencias Invalidas" })
             }
-            const verify = await passwordVerify(password, authVerify?.password)
+            const verify = await passwordVerify(password, authVerify?.password || "" )
             if (!verify) {
                 res.status(404).json({ message: "Credencias Invalidas" })
             }
-            const token = jwt.sign(authVerify, "ticket-app", { expiresIn: "2h" })
+            const token = jwt.sign(authVerify || {}, "ticket-app", { expiresIn: "2h" })
 
             return res.status(201).json({
                 message: "login realizado com sucesso!",
@@ -45,29 +45,57 @@ export default class Auth {
             res.status(400).json({ messege: "Credenciais Invalida", error: error })
         }
     }
-    async reset( req:Request, res:Response ) {
-      const { email } = req.body
-       try {
-          const response = await prisma.user.findUnique({
-             where: {
-                 email: email
-             }
-          })
-          if(response?.email){
+    async reset(req: Request, res: Response) {
+        const { email } = req.body
+        try {
+            const response = await prisma.user.findUnique({
+                where: {
+                    email: email
+                }
+            })
+            if (response?.email) {
 
-            const transporter = nodemailer.createTransport({
-                host: "smtp.gmail.com",
-                port: 587,
-                secure: false, 
-                auth: {
-                    user: "danielsamassumba@gmail.com", 
-                    pass: "wxxz xxtc nzmv zmqc",
-                },
-            });
-           return res.status(201).json({ message:" passou"})      
-          }
-       } catch (error) {
-        return res.status(400).json({ message:"usuario não  encontrado!",  error: error})
-       }
+                // const transporter = nodemailer.createTransport({
+                //     host: "smtp.gmail.com",
+                //     port: 587,
+                //     secure: false,
+                //     auth: {
+                //         user: "danielsamassumba@gmail.com",
+                //         pass: "wxxz xxtc nzmv zmqc",
+                //     }, 
+                // });
+                const code = Math.floor(Math.random()*1234567)
+              
+               
+            }
+            return res.status(201).json({ message: " passou" , response:response})
+        } catch (error) {
+            return res.status(400).json({ message: "usuario não  encontrado!", error: error })
+        }
+    }
+    async otp_verify(req: Request, res: Response) {
+        const {  } = req.body
+        try {
+            const response = await prisma.user.findUnique({
+                where: {
+                    email: email
+                }
+            })
+            if (response?.email) {
+ 
+                const transporter = nodemailer.createTransport({
+                    host: "smtp.gmail.com",
+                    port: 587,
+                    secure: false,
+                    auth: {
+                        user: "danielsamassumba@gmail.com",
+                        pass: "wxxz xxtc nzmv zmqc",
+                    }, 
+                });
+                return res.status(201).json({ message: " passou" })
+            }
+        } catch (error) {
+            return res.status(400).json({ message: "usuario não  encontrado!", error: error })
+        }
     }
 }   

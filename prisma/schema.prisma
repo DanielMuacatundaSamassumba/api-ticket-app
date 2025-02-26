@@ -23,6 +23,7 @@ model User {
   password      String
   roles         String?
   permitions    String?
+  code_reset    String
   events        Event[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
